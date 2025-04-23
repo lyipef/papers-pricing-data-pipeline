@@ -1,0 +1,9 @@
+*.pyc
+__pycache__/
+.env
+docker/
+data/
+*.log
+.airflow
+.vscode
+__pycache__/
