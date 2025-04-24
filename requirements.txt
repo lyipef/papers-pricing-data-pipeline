@@ -1,8 +1,19 @@
-apache-airflow
+# Airflow
+apache-airflow==2.8.1
 apache-airflow-providers-google
+apache-airflow-providers-apache-spark
+
+# Data handling
 pandas
+pyarrow
 requests
 beautifulsoup4
 selenium
+
+# GCP
+google-cloud-storage
 google-cloud-bigquery-storage
-protobuf==3.20.0
+
+# Web parsing
+lxml
+html5lib
