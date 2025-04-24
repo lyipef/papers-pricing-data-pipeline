@@ -1,0 +1,8 @@
+apache-airflow
+apache-airflow-providers-google
+pandas
+requests
+beautifulsoup4
+selenium
+google-cloud-bigquery-storage
+protobuf==3.20.0
