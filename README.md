@@ -16,7 +16,7 @@ Data is scraped, cleaned, and automatically loaded into a scalable cloud archite
 | Layer           | Tool                      |
 |-----------------|----------------------------|
 | Orchestration   | Apache Airflow             |
-| Web Scraping    | Selenium + BeautifulSoup   |
+| Web Scraping    | Request + Selenium + BeautifulSoup   |
 | Cloud Storage   | Google Cloud Storage (GCS) |
 | Database        | BigQuery                   |
 | ETL Facilitator | Astro SDK                  |
@@ -24,10 +24,10 @@ Data is scraped, cleaned, and automatically loaded into a scalable cloud archite
 
 ## How It Works
 
-![Diagram](src\scraper\img\fluxo.png)
+![Diagram](src/scraper/img/fluxo.png)
 
 
-## Code Explanation
+## Codes Explanation
 
 ### DAG: `papers`
 
@@ -129,7 +129,7 @@ Copy your project ID and save it for later.
 
 With the project selected, go to https://console.cloud.google.com/storage/browser and create a Bucket.
 Use the name ```<yourname>_papers_pricing```.
-And change the variable ```bucket_name``` value to your bucket name at the ```dags\papers.py``` file.
+And change the variable ```bucket_name``` value to your bucket name at the ```dags\usd_cny.py``` and ```dags\caixin_pmi.py``` files.
 
 ## Create an service account for the project
 
@@ -148,7 +148,7 @@ Save it.
 
 ### All set, start the DAG
 
-With your Airflow running, go to http://localhost:8080/ and click on DAGs, and click on the papers DAG.
+With your Airflow running, go to http://localhost:8080/ and click on DAGs, and click on the papers and caixin_pmi DAGs.
 Then, start the DAG (play button on the upper right side).
 
 It will go step by step, and if everything was followed, you will get a green execution at the end.
