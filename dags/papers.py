@@ -21,6 +21,7 @@ from astro.constants import FileType
 )
 def papers():
     bucket_name = "data-engineer-test-suzano"
+    dataset_name = "papers"
     
 
     @task
@@ -59,15 +60,15 @@ def papers():
         df = df[df["date"] >= "1991-01-01"]
         df.drop(columns=["timestamp", "unknown"], inplace=True)
         df = df[["date", "close", "open", "high", "low", "volume"]]
-        df.to_parquet("/usr/local/airflow/include/datasets/usd_cny.parquet", index=False)
+        df.to_csv("/usr/local/airflow/include/datasets/usd_cny.csv", index=False)
 
         driver.quit()
 
     
-    upload_usd_cny_parquet_to_gcs = LocalFilesystemToGCSOperator(
-        task_id="upload_usd_cny_parquet_to_gcs",
-        src="/usr/local/airflow/include/datasets/usd_cny.parquet",
-        dst="raw/usd_cny.parquet",
+    upload_usd_cny_csv_to_gcs = LocalFilesystemToGCSOperator(
+        task_id="upload_usd_cny_csv_to_gcs",
+        src="/usr/local/airflow/include/datasets/usd_cny.csv",
+        dst="raw/usd_cny.csv",
         bucket=bucket_name,
         gcp_conn_id="gcp",
         mime_type="application/octet-stream",
@@ -76,28 +77,31 @@ def papers():
 
     create_papers_dataset = BigQueryCreateEmptyDatasetOperator(
         task_id="create_papers_dataset",
-        dataset_id="papers",
+        dataset_id=dataset_name,
         gcp_conn_id="gcp",
     )
 
     papers_gcs_to_raw = aql.load_file(
         task_id="papers_gcs_to_raw",
         input_file=File(
-            f"gs://{bucket_name}/raw/usd_cny.parquet",
+            f"gs://{bucket_name}/raw/usd_cny.csv",
             conn_id="gcp",
-            filetype=FileType.PARQUET,
+            filetype=FileType.CSV,
         ),
         output_table=Table(
             name="usd_cny_monthly",
             conn_id="gcp",
-            metadata=Metadata(schema="papers")
+            metadata=Metadata(schema=dataset_name)
         ),
         use_native_support=True,
+        native_support_kwargs={
+            "encoding": "ISO_8859_1",
+        }
     )
 
     chain(
         fetch_and_upload(),
-        upload_usd_cny_parquet_to_gcs,
+        upload_usd_cny_csv_to_gcs,
         create_papers_dataset,
         papers_gcs_to_raw
     )

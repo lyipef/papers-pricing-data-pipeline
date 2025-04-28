@@ -1,6 +1,5 @@
 FROM quay.io/astronomer/astro-runtime:11.6.0
 
-# Instala o pandas e outras dependências em um ambiente virtual
 RUN python -m venv pandas_venv && \
     source pandas_venv/bin/activate && \
     pip install --no-cache-dir google-cloud-bigquery-storage && \
@@ -9,17 +8,15 @@ RUN python -m venv pandas_venv && \
     pip install --no-cache-dir pandas && \
     deactivate
 
-# Instala o Google Chrome e o ChromeDriver
+
 USER root
 RUN apt-get update -y && apt-get install -y wget xvfb unzip jq
 
-# Install Google Chrome dependencies
 RUN apt-get install -y libxss1 libappindicator1 libgconf-2-4 \
     fonts-liberation libasound2 libnspr4 libnss3 libx11-xcb1 libxtst6 lsb-release xdg-utils \
     libgbm1 libnss3 libatk-bridge2.0-0 libgtk-3-0 libx11-xcb1 libxcb-dri3-0
 
 
-# Fetch the latest version numbers and URLs for Chrome and ChromeDriver
 RUN curl -s https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json > /tmp/versions.json
 
 RUN CHROME_URL=$(jq -r '.channels.Stable.downloads.chrome[] | select(.platform=="linux64") | .url' /tmp/versions.json) && \
@@ -34,15 +31,11 @@ RUN CHROMEDRIVER_URL=$(jq -r '.channels.Stable.downloads.chromedriver[] | select
     unzip /tmp/chromedriver-linux64.zip -d /opt/chromedriver && \
     chmod +x /opt/chromedriver/chromedriver-linux64/chromedriver
 
-# Set up Chromedriver Environment variables
 ENV CHROMEDRIVER_DIR /opt/chromedriver
 ENV PATH $CHROMEDRIVER_DIR:$PATH
 
-# Clean upa
 RUN rm /tmp/chrome-linux64.zip /tmp/chromedriver-linux64.zip /tmp/versions.json
 
-# python dependencies
 RUN pip install selenium
 
-# Retorna para o usuário 'astro' do container
 USER astro
