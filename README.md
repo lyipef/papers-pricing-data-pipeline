@@ -22,35 +22,48 @@ This pipeline extracts historical data for the USD/CNY (US Dollar/Chinese Yuan) 
 
 ![Diagram](src/scraper/Diagrama%20em%20branco.png)
 
-### fetch_and_upload
-- Uses Selenium to scrape historical USD/CNY monthly data.
-- Saves a CSV file locally inside the container.
 
-### upload_usd_cny_csv_to_gcs
-- Uploads the generated CSV to a specific path in a GCS bucket.
+## Code Explanation
 
-### create_papers_dataset
-- Creates the `papers` dataset in BigQuery if it does not already exist.
+### DAG: `papers`
 
-### papers_gcs_to_raw
-- Loads the CSV from GCS into BigQuery using Astro SDK, into the `usd_cny_monthly` table.
+This DAG orchestrates the entire data pipeline for collecting, storing, and processing USD/CNY historical data.
 
+### Tasks:
+
+- **fetch_and_upload**
+  - Uses Selenium and BeautifulSoup to scrape the monthly USD/CNY data from Investing.com.
+  - Saves the data as a CSV file inside the Airflow container.
+
+- **upload_usd_cny_csv_to_gcs**
+  - Uploads the locally saved CSV file to a specific path (`raw/usd_cny.csv`) in a Google Cloud Storage (GCS) bucket.
+
+- **create_papers_dataset**
+  - Creates a BigQuery dataset named `papers` if it does not already exist.
+
+- **papers_gcs_to_raw**
+  - Loads the CSV file from GCS into a BigQuery table called `usd_cny_monthly` using Astro SDK.
+
+---
 ## To run this project you must.
 
-### Install Astro CLI
+## Install Astro CLI
 
 Installation
 1. Open Windows PowerShell as an administrator and then run the following command:
-
+```bash
 winget install -e --id Astronomer.Astro
-
-2. Run astro version to confirm the Astro CLI is installed properly.
+```
+2. Run to confirm the Astro CLI is installed properly.
+```bash
+    astro version
+```
 https://www.astronomer.io/docs/astro/cli/install-cli/?tab=windowswithwinget#install-the-astro-cli
 
-### Install Docker
+## Install Docker
 https://www.docker.com/products/docker-desktop/
 
-### Clone the GitHub repo
+## Clone the GitHub repo
 
 In your terminal:
 
@@ -60,7 +73,7 @@ Clone the repo using Github CLI or Git CLI
 git clone https://github.com/lyipef/data-engineer-test-suzano-filipe-freitas.git
 ```
 
-### Reinitialize the Airflow project
+## Reinitialize the Airflow project
 Open the code editor terminal:
 ```bash
 astro dev init
@@ -69,7 +82,7 @@ It will ask: ```You are not in an empty directory. Are you sure you want to init
 Type ```y``` and the project will be reinitialized.
 
 
-### Build the project
+## Build the project
 In the code editor terminal, type:
 
 ```bash
@@ -80,23 +93,23 @@ The default Airflow endpoint is http://localhost:8080/
 - Default username: admin
 - Default password: admin
 
-### Create the GCP project
+## Create the GCP project
 In your browser go to https://console.cloud.google.com/ and create a project, recomended something like:  ```papers-pricing```
 
 Copy your project ID and save it for later.
 
-#### Create a Bucket on GCP
+## Create a Bucket on GCP
 
 With the project selected, go to https://console.cloud.google.com/storage/browser and create a Bucket.
 Use the name ```<yourname>_papers_pricing```.
 And change the variable ```bucket_name``` value to your bucket name at the ```dags\papers.py``` file.
 
-#### Create an service account for the project
+## Create an service account for the project
 
 Go to the IAM tab, and create the Service account with the name ```papers-pricing```.
 Give admin access to GCS and BigQuery, and export the json keys. Rename the file to service_account.json and put inside the folder ```include/gcp/``` (you will have to create this folder).
 
-#### Build a connection in your airflow
+## Build a connection in your airflow
 
 In your airflow, at the http://localhost:8080/, login and go to Admin → Connections.
 Create a new connection and use this configs:
