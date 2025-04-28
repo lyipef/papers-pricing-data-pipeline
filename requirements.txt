@@ -1,5 +1,5 @@
 # Airflow
-apache-airflow==2.8.1
+apache-airflow
 apache-airflow-providers-google
 apache-airflow-providers-apache-spark
 
