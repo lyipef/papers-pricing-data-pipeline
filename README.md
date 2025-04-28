@@ -100,15 +100,6 @@ Clone the repository using Github CLI or Git CLI
 git clone https://github.com/lyipef/papers-pricing-data-pipeline
 ```
 
-## Reinitialize the Airflow project
-Open the code editor terminal:
-```bash
-astro dev init
-```
-It will ask: ```You are not in an empty directory. Are you sure you want to initialize a project? (y/n)```
-Type ```y``` and the project will be reinitialized.
-
-
 ## Build the project
 In the code editor terminal, type:
 
