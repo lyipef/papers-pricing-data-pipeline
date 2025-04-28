@@ -1,8 +1,12 @@
 # Papers Pricing Data Pipeline
 
-Automation project to collect and store economic data from [Investing.com](https://br.investing.com).
+Automation project designed to collect, process, and store economic indicators from [Investing.com](https://br.investing.com) and other financial sources.
 
-This pipeline extracts historical data for the USD/CNY (US Dollar/Chinese Yuan) pair and loads it into a scalable cloud-based data structure on **Google Cloud**.
+This pipeline extracts:
+- **Historical USD/CNY (US Dollar/Chinese Yuan) exchange rate data** from Investing.com.
+- **Historical Chinese Caixin Services PMI data** from MQL5.
+
+Data is scraped, cleaned, and automatically loaded into a scalable cloud architecture using **Google Cloud Storage** and **BigQuery**, orchestrated by **Apache Airflow**.
 
 ---
 
@@ -20,7 +24,7 @@ This pipeline extracts historical data for the USD/CNY (US Dollar/Chinese Yuan) 
 
 ## How It Works
 
-![Diagram](src/scraper/Diagrama%20em%20branco.png)
+![Diagram](src\scraper\img\fluxo.png)
 
 
 ## Code Explanation
@@ -45,32 +49,55 @@ This DAG orchestrates the entire data pipeline for collecting, storing, and proc
   - Loads the CSV file from GCS into a BigQuery table called `usd_cny_monthly` using Astro SDK.
 
 ---
+
+### DAG: `caixin_pmi`
+
+This DAG orchestrates the data pipeline for Caixin PMI data.
+
+### Tasks:
+
+- **fetch_and_upload**
+  - Scrapes monthly Caixin Services PMI historical data from the MQL5 website.
+  - Parses the data with BeautifulSoup.
+  - Creates a clean CSV file locally inside the Airflow container.
+
+- **upload_csv_to_gcs**
+  - Uploads the generated CSV file to a GCS bucket under `raw/caixin_pmi.csv`.
+
+- **create_papers_dataset_if_not_exist**
+  - Ensures that a dataset named `papers` exists in BigQuery.
+
+- **papers_gcs_to_raw**
+  - Loads the CSV file from GCS into BigQuery into the `caixin_pmi_monthly` table using Astro SDK.
+
+
+---
 ## To run this project you must.
 
 ## Install Astro CLI
 
-Installation
+- Installation
 1. Open Windows PowerShell as an administrator and then run the following command:
 ```bash
 winget install -e --id Astronomer.Astro
 ```
 2. Run to confirm the Astro CLI is installed properly.
 ```bash
-    astro version
+astro version
 ```
 https://www.astronomer.io/docs/astro/cli/install-cli/?tab=windowswithwinget#install-the-astro-cli
 
 ## Install Docker
 https://www.docker.com/products/docker-desktop/
 
-## Clone the GitHub repo
+## Clone the GitHub Repository
 
 In your terminal:
 
-Clone the repo using Github CLI or Git CLI
+Clone the repository using Github CLI or Git CLI
 
 ```bash
-git clone https://github.com/lyipef/data-engineer-test-suzano-filipe-freitas.git
+git clone https://github.com/lyipef/papers-pricing-data-pipeline
 ```
 
 ## Reinitialize the Airflow project
@@ -125,4 +152,4 @@ With your Airflow running, go to http://localhost:8080/ and click on DAGs, and c
 Then, start the DAG (play button on the upper right side).
 
 It will go step by step, and if everything was followed, you will get a green execution at the end.
-Check in your GCP Storage account if the file was uploaded succesfully, in your BigQuery tab if the tables was been built and in your Soda dashboard if everithing is fine.
+Check in your GCP Storage account if the file was uploaded succesfully, in your BigQuery tab if the tables was been built.

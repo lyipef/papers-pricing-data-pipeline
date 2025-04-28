@@ -20,8 +20,8 @@ from astro.constants import FileType
     tags=["papers_pricing"],
 )
 def papers():
-    bucket_name = "data-engineer-test-suzano"
-    dataset_name = "papers"
+    BUCKET_NAME = "data-engineer-test-suzano"
+    DATASET_NAME = "papers"
     
 
     @task
@@ -65,33 +65,33 @@ def papers():
         driver.quit()
 
     
-    upload_usd_cny_csv_to_gcs = LocalFilesystemToGCSOperator(
+    upload_csv_to_gcs = LocalFilesystemToGCSOperator(
         task_id="upload_usd_cny_csv_to_gcs",
         src="/usr/local/airflow/include/datasets/usd_cny.csv",
         dst="raw/usd_cny.csv",
-        bucket=bucket_name,
+        bucket=BUCKET_NAME,
         gcp_conn_id="gcp",
         mime_type="application/octet-stream",
     )
 
 
-    create_papers_dataset = BigQueryCreateEmptyDatasetOperator(
+    create_papers_dataset_if_not_exist = BigQueryCreateEmptyDatasetOperator(
         task_id="create_papers_dataset",
-        dataset_id=dataset_name,
+        dataset_id=DATASET_NAME,
         gcp_conn_id="gcp",
     )
 
     papers_gcs_to_raw = aql.load_file(
         task_id="papers_gcs_to_raw",
         input_file=File(
-            f"gs://{bucket_name}/raw/usd_cny.csv",
+            f"gs://{BUCKET_NAME}/raw/usd_cny.csv",
             conn_id="gcp",
             filetype=FileType.CSV,
         ),
         output_table=Table(
             name="usd_cny_monthly",
             conn_id="gcp",
-            metadata=Metadata(schema=dataset_name)
+            metadata=Metadata(schema=DATASET_NAME)
         ),
         use_native_support=True,
         native_support_kwargs={
@@ -101,8 +101,8 @@ def papers():
 
     chain(
         fetch_and_upload(),
-        upload_usd_cny_csv_to_gcs,
-        create_papers_dataset,
+        upload_csv_to_gcs,
+        create_papers_dataset_if_not_exist,
         papers_gcs_to_raw
     )
 
